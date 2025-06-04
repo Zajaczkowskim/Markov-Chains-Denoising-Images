@@ -61,12 +61,16 @@ class IsingGrid:
     def probability(self):
         return np.exp(- self.invtemp * self.total_energy_np())
 
-    def gibbs_move(self):
+    def gibbs_move(self, beta=None):
+        """Wykonaj jeden ruch Gibbsa z opcjonalnym parametrem beta"""
+        if beta is None:
+            beta = self.invtemp
+            
         n = np.random.randint(0, self.width * self.height)
         y = n // self.width
         x = n % self.width
-        # p = 1 / (1 + np.exp(-2 * self.invtemp * self.local_energy(x,y)))
-        p = expit(2 * self.invtemp * self.local_energy(x, y))  # bez ryzyka overflow
+        # p = 1 / (1 + np.exp(-2 * beta * self.local_energy(x,y)))
+        p = expit(2 * beta * self.local_energy(x, y))  # bez ryzyka overflow
         if np.random.random() <= p:
             self.grid[x, y] = 1
         else:
@@ -93,19 +97,85 @@ class IsingGridVaryingField(IsingGrid):
     def local_energy(self, x, y):
         return self.vextfield[x, y] + sum(self.grid[xx, yy] for (xx, yy) in self.neighbours(x, y))
 
+def get_annealing_schedule(beta_start, beta_end, total_steps, schedule_type='linear'):
+    """
+    Tworzy plan wyżarzania parametru beta.
+    
+    Parameters:
+    - beta_start: początkowa wartość beta (niska temperatura = wysokie beta)
+    - beta_end: końcowa wartość beta 
+    - total_steps: całkowita liczba kroków
+    - schedule_type: typ planu ('linear', 'exponential', 'power', 'cosine')
+    
+    Returns:
+    - array z wartościami beta dla każdego kroku
+    """
+    steps = np.arange(total_steps)
+    
+    if schedule_type == 'linear':
+        # Liniowy plan wyżarzania
+        return beta_start + (beta_end - beta_start) * steps / (total_steps - 1)
+    
+    elif schedule_type == 'exponential':
+        # Wykładniczy plan wyżarzania
+        ratio = beta_end / beta_start
+        return beta_start * (ratio ** (steps / (total_steps - 1)))
+    
+    elif schedule_type == 'power':
+        # Plan potęgowy (powolne na początku, szybkie na końcu)
+        alpha = 2.0  # można dostosować
+        progress = steps / (total_steps - 1)
+        return beta_start + (beta_end - beta_start) * (progress ** alpha)
+    
+    elif schedule_type == 'cosine':
+        # Plan cosinusowy (płynne przejście)
+        progress = steps / (total_steps - 1)
+        return beta_start + (beta_end - beta_start) * (1 - np.cos(progress * np.pi)) / 2
+    
+    else:
+        raise ValueError(f"Nieznany typ planu: {schedule_type}")
 
-def IsingDeNoise(noisy, q, burnin=50000, loops=500000):
+def IsingDeNoise(noisy, q, burnin=50000, loops=500000, 
+                 use_annealing=False, beta_schedule='exponential'):
+    """
+    Denoisuje obraz używając modelu Isinga z opcjonalnym planem wyżarzania.
+    
+    Parameters:
+    - noisy: zaszumiony obraz
+    - q: prawdopodobieństwo poprawności piksela
+    - burnin: liczba kroków burn-in
+    - loops: liczba kroków próbkowania
+    - use_annealing: czy używać planu wyżarzania
+    - beta_schedule: typ planu wyżarzania
+    """
     h = 0.5 * np.log(q / (1 - q))
     gg = IsingGridVaryingField(noisy.shape[0], noisy.shape[1], h * noisy, 2)
     gg.grid = np.array(noisy)
 
-    # Burn-in
-    for _ in range(burnin):
-        gg.gibbs_move()
+    if use_annealing:
+        # Plan wyżarzania: zaczynamy od niskiej temperatury (wysokie beta)
+        # i przechodzimy do docelowej temperatury
+        beta_start = 0.1  # niska temperatura na początku
+        beta_end = 2.0    # docelowa temperatura
+        
+        # Plan dla burn-in
+        burnin_schedule = get_annealing_schedule(beta_start, beta_end, burnin, beta_schedule)
+        
+        # Burn-in z planem wyżarzania
+        print(f"Burn-in z planem wyżarzania ({beta_schedule}): β = {beta_start:.2f} → {beta_end:.2f}")
+        for i in range(burnin):
+            gg.gibbs_move(beta=burnin_schedule[i])
+    else:
+        # Standardowy burn-in bez planu wyżarzania
+        print("Burn-in bez planu wyżarzania")
+        for _ in range(burnin):
+            gg.gibbs_move()
 
-    # Sample
+    # Sample - tutaj używamy stałej temperatury (docelowej)
+    print("Próbkowanie z stałą temperaturą")
     avg = np.zeros_like(noisy).astype(np.float64)
     for _ in range(loops):
-        gg.gibbs_move()
+        gg.gibbs_move(beta=2.0 if use_annealing else None)
         avg += gg.grid
+    
     return avg / loops
