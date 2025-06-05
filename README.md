@@ -6,6 +6,9 @@ Projekt został przygotowany w ramach przedmiotu **Algorytmiczne zastosowanie ł
 Repozytorium bazuje na kodzie dostępnym tutaj:  
 **[link](https://github.com/MatthewDaws/Python_bits/blob/master/monte_carlo/Ising%20Model.ipynb)**
 
+
+Autor oryginalnego notatnika przedstawił model w sposób nie do końca jasny i nie w pełni poprawny matematycznie. W związku z tym przygotowaliśmy własne, bardziej szczegółowe wprowadzenie oraz uzasadnienie zastosowania modelu, które zostały zamieszczone w osobnym pliku.
+
 ## Autorzy:
 Krzysztof Tkaczyk, Michał Zajączkowski
 
