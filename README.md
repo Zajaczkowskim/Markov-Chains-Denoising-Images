@@ -29,8 +29,9 @@ Krzysztof Tkaczyk, Michał Zajączkowski
   Notebook prezentujący wyniki testów odszumiania z zastosowaniem **symulowanego wyżarzania (simulated annealing)** jako techniki optymalizacji. Zawiera porównanie wyników dla modelu z tą modyfikacją.
 
 - **`chinese_letters_noisiness.ipynb`**  
-Analiza wpływu poziomu zaszumienia oraz kształty na skuteczność odszumiania z wykorzystaniem zbioru Chinese MNIST.
+Analiza wpływu poziomu zaszumienia oraz kształtu na skuteczność odszumiania z wykorzystaniem zbioru Chinese MNIST.
 
 ## Zbiory danych
 
 - Chinese MNIST: https://www.kaggle.com/datasets/gpreda/chinese-mnist
+- Fashion MNIST: https://www.kaggle.com/datasets/zalando-research/fashionmnist
