@@ -7,8 +7,6 @@ Repozytorium bazuje na kodzie dostępnym tutaj:
 **[link](https://github.com/MatthewDaws/Python_bits/blob/master/monte_carlo/Ising%20Model.ipynb)**
 
 
-Autor oryginalnego notatnika przedstawił model w sposób nie do końca jasny i nie w pełni poprawny matematycznie. W związku z tym przygotowaliśmy własne, bardziej szczegółowe wprowadzenie oraz uzasadnienie zastosowania modelu, które zostały zamieszczone w osobnym pliku.
-
 ## Autorzy:
 Krzysztof Tkaczyk, Michał Zajączkowski
 
@@ -29,3 +27,10 @@ Krzysztof Tkaczyk, Michał Zajączkowski
 
 - **`test_annealing.ipynb`**  
   Notebook prezentujący wyniki testów odszumiania z zastosowaniem **symulowanego wyżarzania (simulated annealing)** jako techniki optymalizacji. Zawiera porównanie wyników dla modelu z tą modyfikacją.
+
+- **`chinese_letters_noisiness.ipynb`**  
+Analiza wpływu poziomu zaszumienia oraz kształty na skuteczność odszumiania z wykorzystaniem zbioru Chinese MNIST.
+
+## Zbiory danych
+
+- Chinese MNIST: https://www.kaggle.com/datasets/gpreda/chinese-mnist
